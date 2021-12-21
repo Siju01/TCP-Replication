@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\Server\\Server.csproj",
+      "projectUniqueName": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\TCP-Replication\\Server\\Server.csproj",
       "projectName": "Server",
-      "projectPath": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\Server\\Server.csproj",
+      "projectPath": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\TCP-Replication\\Server\\Server.csproj",
       "packagesPath": "C:\\Users\\SIJU\\.nuget\\packages\\",
-      "outputPath": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\Server\\obj\\",
+      "outputPath": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\TCP-Replication\\Server\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\SIJU\\AppData\\Roaming\\NuGet\\NuGet.Config",

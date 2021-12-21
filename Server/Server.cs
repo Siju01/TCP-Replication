@@ -1,128 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 using System.Threading;
-using PlayerData;
 
 namespace Server
 {
-    public class Constant
+    //Processing data
+    class ProcessingData
     {
-        public static byte[] dataBuffer = new byte[4096];
-    }
+        SaveData save = new SaveData();
 
+        public List<TcpClient> clientList = new List<TcpClient>();
 
-    class Server
-    {
-        TcpListener listener;
-        private string ip;
-        private int port;
-
-        private List<Client> clientOnServer = new List<Client>();
-        public delegate void PacketHandler(int _fromClient);
-        public static Dictionary<int, PacketHandler> packetHandlers;
-
-        public Server(string _ip, int _port)
+        public void addClients(TcpClient client)
         {
-            ip = _ip;
-            port = _port;
+            clientList.Add(client);
         }
 
-        public void Start()
+        //Take message from client
+        public void GetMessage(TcpClient tcpClient)
         {
-            listener = new TcpListener(IPAddress.Parse(ip), port);
-            listener.Start();
-            Console.WriteLine("Server Started");
-            listener.BeginAcceptTcpClient(ConnectionCallback, null);
-        }
+            Console.WriteLine("Client is Connected.");
+            StreamReader reader = new StreamReader(tcpClient.GetStream());
 
-        private void ConnectionCallback(IAsyncResult _result)
-        {
-            TcpClient client = listener.EndAcceptTcpClient(_result);
-            listener.BeginAcceptTcpClient(ConnectionCallback, null);
-
-            // add player on server
-            Client newPlayer = new Client(client);
-            clientOnServer.Add(newPlayer);
-            Console.WriteLine($"Incoming connection from {client.Client.RemoteEndPoint}...");
-        }
-
-    }
-
-
-    public class Client
-    {
-        private TcpClient socket;
-        private NetworkStream stream;
-        private Player player;
-
-        public Client(TcpClient _client)
-        {
-            socket = _client;
-            socket.ReceiveBufferSize = Constant.dataBuffer.Length;
-            socket.SendBufferSize = Constant.dataBuffer.Length;
-
-            stream = socket.GetStream();
-
-            stream.BeginRead(Constant.dataBuffer, 0, Constant.dataBuffer.Length, ReceiveData, null);
-        }
-
-        private void ReceiveData(IAsyncResult _result)
-        {
-            try
+            //Every incoming message will be read and recorded
+            while (true)
             {
-                int _byteLength = stream.EndRead(_result);
-                if (_byteLength <= 0)
+                string message = reader.ReadLine();
+                Broadcast(message, tcpClient);
+
+                string chat = message;
+                Console.WriteLine(chat);
+
+                save.writeMessage(chat);
+            }
+        }
+
+        //Save data into txt file
+        class SaveData
+        {
+            private List<string> saveMessages = new List<string>();
+            public void writeMessage(string chat)
+            {
+                saveMessages.Add(chat);
+                File.WriteAllLines("C:/Pens/Semester 5/Pemrograman Jaringan Komputer/TCP Replication/TCP-Replication/ChatHistory.txt", saveMessages);
+            }
+        }
+
+        //Broadcast message
+        public void Broadcast(string message, TcpClient excludeClient)
+        {
+            foreach (TcpClient client in clientList)
+            {
+
+                StreamWriter sWriter = new StreamWriter(client.GetStream());
+
+                if (client != excludeClient)
                 {
-                    // disconnected
-                    return;
+                    sWriter.WriteLine(message);
                 }
 
-                byte[] data = new byte[_byteLength];
-                Array.Copy(Constant.dataBuffer, data, _byteLength);
-
-                HandleData(data);
-                stream.BeginRead(Constant.dataBuffer, 0, Constant.dataBuffer.Length, ReceiveData, null);
-            }
-            catch (Exception _ex)
-            {
-                Console.WriteLine($"Error receiving TCP data: {_ex}");
-                // disconnected
+                sWriter.Flush();
             }
         }
+    }
 
-        private void HandleData(byte[] data)
+    class Program
+    {
+        public static TcpListener tcpListener;
+
+        static void Main(string[] args)
         {
-            byte[] buffer = data;
-            int readPos = 0;
+            ProcessingData dataClient = new ProcessingData();
 
-            while (buffer.Length - readPos >= 4)
+            tcpListener = new TcpListener(IPAddress.Any, 6000);
+            tcpListener.Start();
+            Console.WriteLine("Server is Created.");
+
+            while (true)
             {
-                int packetType = BitConverter.ToInt32(buffer, readPos);
-                readPos += 4;
 
-                switch (packetType)
-                {
-                    case (int)Packet.PLAYER_SPAWN:
-                        player = new Player(0, 0);
-                        break;
-                    case (int)Packet.PLAYER_MOVE:
-                        int x = BitConverter.ToInt32(buffer, readPos);
-                        readPos += 4;
-                        int y = BitConverter.ToInt32(buffer, readPos);
-                        readPos += 4;
-                        player.Move(x, y);
-                        break;
-                    case (int)Packet.PLAYER_ATTACK:
-                        player.Attack();
-                        break;
-                    default:
-                        break;
-                }
+                TcpClient tcpClient = tcpListener.AcceptTcpClient();
+                dataClient.addClients(tcpClient);
+
+                Thread startListen = new Thread(() => dataClient.GetMessage(tcpClient));
+                startListen.Start();
             }
         }
-
     }
 }

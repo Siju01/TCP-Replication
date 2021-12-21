@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HS6RcMdA8Wz8Z3klAR3AyfPnoaADMGgaDOwbe478HxpRmwCI+ES5m7/4CURYnTAxz+BnmXXkO34XQeLVlYBUqw==",
+  "dgSpecHash": "hrTz9gk192POai/9lf+YtZC/tMm/nrWBOV+LDPer9SHVNbBq++3nDJI0FkQv0mj+RC/mnxcLV0gFmXtH7o2Vuw==",
   "success": true,
-  "projectFilePath": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\Server\\Server.csproj",
+  "projectFilePath": "C:\\Pens\\Semester 5\\Pemrograman Jaringan Komputer\\TCP Replication\\TCP-Replication\\Server\\Server.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
